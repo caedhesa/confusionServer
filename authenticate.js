@@ -1,11 +1,10 @@
-var passport = require("passport");
-var LocalStrategy = require("passport-local").Strategy;
-var User = require("./models/user");
-var JwtStrategy = require("passport-jwt").Strategy;
-var ExtractJwt = require("passport-jwt").ExtractJwt;
-var jwt = require("jsonwebtoken"); // used to create, sign, and verify tokens
-
-var config = require("./config.js");
+const passport = require("passport");
+const LocalStrategy = require("passport-local").Strategy;
+const User = require("./models/user");
+const JwtStrategy = require("passport-jwt").Strategy;
+const ExtractJwt = require("passport-jwt").ExtractJwt;
+const jwt = require("jsonwebtoken");
+const config = require("./config");
 passport.use(new LocalStrategy(User.authenticate()));
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
@@ -34,3 +33,13 @@ exports.jwtPassport = passport.use(
 );
 
 exports.verifyUser = passport.authenticate("jwt", { session: false });
+
+exports.verifyAdmin = (req, res, next) => {
+  if (req.user.admin) {
+    next();
+  } else {
+    err = new Error("You are not authrized to perform this operation");
+    err.status = 403;
+    return next(err);
+  }
+};
